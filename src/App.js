@@ -7,7 +7,7 @@ import ValidationsModel from './includes/Models/ValidationsModel';
 import ConditionsModel from './includes/Models/ConditionsModel';
 import { Icon, Header, Grid } from 'semantic-ui-react';
 import Select from './includes/Components/Select';
-import { formsArray } from './includes/constants';
+import { formsArray, AJAX_URL } from './includes/constants';
 
 import QuestionModel from './includes/Models/QuestionModel';
 
@@ -17,6 +17,9 @@ class App extends React.Component {
     super();
     this.handleFormSelected = this.handleFormSelected.bind( this );
     this.saveQuestionsToPersistance = this.saveQuestionsToPersistance.bind( this );
+    this.getQuestionsFromPersistance = this.getQuestionsFromPersistance.bind( this );
+    this.getQuestionsForForm = this.getQuestionsForForm.bind( this );
+    this.sendOutAjaxSave = this.sendOutAjaxSave.bind( this );
 
     this.handleChangeName = this.handleChangeName.bind( this );
     this.handleChangeType = this.handleChangeType.bind( this );
@@ -51,10 +54,11 @@ class App extends React.Component {
 
   componentDidMount() {
     this.recalcBranches();
+    this.getQuestionsFromPersistance();
   }
 
   state ={
-    questions: localStorage.popisSettingsPl ? JSON.parse( localStorage.popisSettingsPl ) : [],
+    questions: [],
     branches:[new BranchModel( 0, [], 'root' )], // Do not clear (holds all the branches)
     QuestionBranches:[],
     validations:[],
@@ -64,7 +68,8 @@ class App extends React.Component {
     onBranch:'',
     orderOnBranch:'',
     isUpdating:-1,
-    formSelected: 3
+    formSelected: 3,
+    formsCollection: []
   };
 
   clearForm() {
@@ -90,13 +95,58 @@ class App extends React.Component {
   };
 
   handleFormSelected( event ) {
-    const formSelected = event.target.value, selectedFormObj = formsArray.find( f=> f.id === parseInt( formSelected, 10 ) ),
-     questions = selectedFormObj.localStorageObject ? JSON.parse( selectedFormObj.localStorageObject ) : [] ;
-    this.setState({ formSelected, questions });
-
+    this.setState({ formSelected: event.target.value });
+    this.getQuestionsForForm( event.target.value );
   };
+
   saveQuestionsToPersistance( questions ) {
-    formsArray.find( f=> f.id === parseInt( this.state.formSelected, 10 ) ).localStorageObject = JSON.stringify( questions );
+     window.localStorage[this.state.formsCollection
+    .find( f=> f.id === parseInt( this.state.formSelected, 10 ) )
+    .storageObject] = JSON.stringify( questions );
+    this.sendOutAjaxSave( this.state.formSelected, questions );
+  }
+
+  sendOutAjaxSave( formId, questionsObj ) {
+    const data = JSON.stringify( {
+      formId,
+      questions: JSON.stringify( questionsObj )
+    });
+    if ( AJAX_URL.length > 0 ) {
+      fetch( AJAX_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: data
+    });
+    }else {
+      console.log( JSON.parse( JSON.parse( data ).questions ) );
+    }
+
+  }
+
+  getQuestionsFromPersistance() {
+    fetch( AJAX_URL )
+    .then( res => res.json() )
+    .then(
+      ( formsCollection ) => {
+        this.setState({ formsCollection });
+        this.getQuestionsForForm( this.state.formSelected );
+      }, ( error ) => {
+        this.setState({ formsCollection: formsArray });
+        this.getQuestionsForForm( this.state.formSelected );
+        console.log( 'Ajax Call failed', error );
+      }
+    );
+  }
+
+  getQuestionsForForm( formSelected ) {
+    const selectedFormObj = this.state.formsCollection.find( f=> f.id === parseInt( formSelected, 10 ) );
+    let questions = [];
+
+    questions = localStorage[selectedFormObj.storageObject] ? JSON.parse( localStorage[selectedFormObj.storageObject] ) : [] ;
+
+    this.setState({ questions });
   }
 
   //Top part of form
@@ -238,30 +288,31 @@ class App extends React.Component {
   }
 
   render() {
-    const formSelected = formsArray.find( f=> f.id === parseInt( this.state.formSelected, 10 ) ),
-     formSelectDataSource = formsArray.map( f=> {
+    const SelectedForm = this.state.formsCollection.find( f=> f.id === parseInt( this.state.formSelected, 10 ) ),
+    SelectedFormName = SelectedForm ? SelectedForm.name : '',
+    SelectedFormDataSource = this.state.formsCollection.map( f=> {
                               return { value: f.id, text:f.name };
                             });
     return ( <div className='ui container' >
         <Grid>
           <Grid.Row>
             <Grid.Column width={8}>
-            <Header as='h2' style={{ margin:'40px 0' }}>
-              <Icon name='settings' />
-              <Header.Content>
-                Popis Questions
-                <Header.Subheader>Promeni Podatoci za {formSelected.name}</Header.Subheader>
-              </Header.Content>
-            </Header>
-          </Grid.Column>
-
-          <Grid.Column width={4} style={{ margin:'40px 0' }}>
-          </Grid.Column>
+              <Header as='h2' style={{ margin:'40px 0' }}>
+                <Icon name='settings' />
+                <Header.Content>
+                  Popis Questions
+                  <Header.Subheader>Promeni Podatoci za {SelectedFormName}</Header.Subheader>
+                </Header.Content>
+              </Header>
+            </Grid.Column>
 
             <Grid.Column width={4} style={{ margin:'40px 0' }}>
-            <Select items={formSelectDataSource} title='Forma' value={this.state.formSelected} onChange={this.handleFormSelected} />
-          </Grid.Column>
-        </Grid.Row>
+            </Grid.Column>
+
+            <Grid.Column width={4} style={{ margin:'40px 0' }}>
+              <Select items={SelectedFormDataSource} title='Forma' value={this.state.formSelected} onChange={this.handleFormSelected} />
+            </Grid.Column>
+          </Grid.Row>
         </Grid>
 
       <Form
@@ -297,7 +348,7 @@ class App extends React.Component {
         errMsg={this.state.errMsg}
 
        />
-      <ResultsTable tableRows={this.state.questions} deleteRow={this.deleteQuestion} loadQuestion={this.loadQuestion}/>
+      <ResultsTable tableRows={this.state.questions} deleteRow={this.deleteQuestion} loadQuestion={this.loadQuestion} />
     </div> );
   };
 

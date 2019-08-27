@@ -14,29 +14,31 @@ export const typeOfQuestions = [{ value:'normalno', text:'Normalno' },
 
 export const typeOfConditions = [{ value:'static', text:'Static' },
                                                { value:'dynamic', text:'Dynamic' }];
+export const AJAX_URL = '';
+
 export const formsArray = [
   {
     id:1,
     name:'Podatoci Zgrada',
     shortName:'PZ',
-    localStorageObject: localStorage.popisSettingsPz
+    storageObject: 'popisSettingsPz'
   },
   {
     id:2,
     name:'Podatoci Stan',
     shortName:'PS',
-    localStorageObject: localStorage.popisSettingsPs
+    storageObject: 'popisSettingsPs'
   },
   {
     id:3,
     name:'Podatoci Lice',
     shortName:'PL',
-    localStorageObject: localStorage.popisSettingsPl
+    storageObject: 'popisSettingsPl'
   },
   {
     id:4,
     name:'Podatoci Domakinstvo',
     shortName:'PD',
-    localStorageObject: localStorage.popisSettingsPd
+    storageObject: 'popisSettingsPd'
   }
 ];
