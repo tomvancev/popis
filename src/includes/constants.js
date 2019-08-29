@@ -14,7 +14,7 @@ export const typeOfQuestions = [{ value:'normalno', text:'Normalno' },
 
 export const typeOfConditions = [{ value:'static', text:'Static' },
                                                { value:'dynamic', text:'Dynamic' }];
-export const AJAX_URL = '';
+export const AJAX_URL = 'Service.svc';
 
 export const formsArray = [
   {
