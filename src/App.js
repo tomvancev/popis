@@ -48,7 +48,7 @@ class App extends React.Component {
     this.deleteCondition = this.deleteCondition.bind( this );
 
     this.recalcBranches = this.recalcBranches.bind( this );
-    this.loadQuestion = this.loadQuestion.bind( this );
+    this.editQuestion = this.editQuestion.bind( this );
 
   }
 
@@ -69,7 +69,8 @@ class App extends React.Component {
     orderOnBranch:'',
     isUpdating:-1,
     formSelected: 3,
-    formsCollection: []
+    formsCollection: [],
+    formErrors:[]
   };
 
   clearForm() {
@@ -85,13 +86,17 @@ class App extends React.Component {
         validations:[],
         errMsg:'',
 
-        isUpdating:-1
+        isUpdating:-1,
+        formErrors:[]
        });
 
   }
 
   cancelAddQuestion() {
     this.clearForm();
+    const questions = this.state.questions.slice();
+    questions.forEach( q=> q.isUpdating = 0 );
+    this.setState({ questions });
   };
 
   handleFormSelected( event ) {
@@ -100,11 +105,11 @@ class App extends React.Component {
   };
 
   saveQuestionsToPersistance( questions ) {
-    if(AJAX_URL.length ===0){
+    if ( AJAX_URL.length === 0 ) {
        window.localStorage[this.state.formsCollection
       .find( f=> f.id === parseInt( this.state.formSelected, 10 ) )
       .storageObject] = JSON.stringify( questions );
-    }else{
+    }else {
       this.sendOutAjaxSave( this.state.formSelected, questions );
     }
   }
@@ -131,7 +136,7 @@ class App extends React.Component {
   getQuestionsFromPersistance() {
     fetch( AJAX_URL + '/GetAll' )
     .then( res => res.json() )
-    .then(data => JSON.parse(data.d))
+    .then( data => JSON.parse( data.d ) )
     .then(
       ( formsCollection ) => {
         this.setState({ formsCollection });
@@ -147,11 +152,11 @@ class App extends React.Component {
   getQuestionsForForm( formSelected ) {
     const selectedFormObj = this.state.formsCollection.find( f=> parseInt( f.id, 10 ) === parseInt( formSelected, 10 ) );
     let questions = [];
-    if(AJAX_URL.length ===0){
+    if ( AJAX_URL.length === 0 ) {
       questions = localStorage[selectedFormObj.storageObject] ? JSON.parse( localStorage[selectedFormObj.storageObject] ) : [] ;
-    }else{
-      if(selectedFormObj){
-        questions =  selectedFormObj.payload ? JSON.parse(selectedFormObj.payload) : [];
+    }else {
+      if ( selectedFormObj ) {
+        questions =  selectedFormObj.payload ? JSON.parse( selectedFormObj.payload ) : [];
       }
     }
 
@@ -178,9 +183,10 @@ class App extends React.Component {
     return newId;
   }
 
-  recalcBranches() {
+  recalcBranches( questionsPar ) {
+    const questions = questionsPar || this.state.questions;
     let branches = [new BranchModel( 0, [], 'root' )];
-    this.state.questions.filter( q=>q.branches.length > 0 ).forEach( q => {
+    questions.filter( q=>q.branches.length > 0 ).forEach( q => {
       branches = branches.concat( q.branches );
     });
     this.setState( { branches } );
@@ -233,14 +239,15 @@ class App extends React.Component {
     const questions = this.state.questions.slice(),
      { name, type, onBranch, orderOnBranch, conditions, validations } = this.state;
     let { QuestionBranches, isUpdating } = this.state;
-    if ( ! name || ! orderOnBranch ) {
-      this.setState({ errMsg:'A question must have a name and order On Branch' });
+    if ( ! name || ! type || ! onBranch || ! orderOnBranch  ) {
+      this.setState({ errMsg: 'A question must have a name, type, onBranch and orderOnBranch ' });
       return;
     }
+
     if ( -1 === isUpdating ) {
 
       if ( questions.findIndex( q=> q.name === name ) !== -1 ) {
-        this.setState({ errMsg:'This question already exists' });
+        this.setState({ errMsg: 'This question already exists' });
         return;
       }
       let newId = this.generateId( questions );
@@ -270,7 +277,7 @@ class App extends React.Component {
       this.setState({ questions, isUpdating });
       this.saveQuestionsToPersistance( questions );
 
-      this.recalcBranches();
+      this.recalcBranches( questions );
 
     this.clearForm();
   };
@@ -278,15 +285,17 @@ class App extends React.Component {
   deleteQuestion( id ) {
     const questions = this.state.questions.slice().filter( s => s.id !== id );
     if ( window.confirm( 'Delete question: ' + id ) ) {
-
-    this.setState({ questions });
-    this.saveQuestionsToPersistance( questions );
-    this.recalcBranches();
+      this.setState({ questions });
+      this.saveQuestionsToPersistance( questions );
+      this.recalcBranches( questions );
+      if (  0 < this.state.isUpdating ) {
+        this.clearForm();
+      }
     }
 
   };
 
-  loadQuestion( id ) {
+  editQuestion( id ) {
     const questions = this.state.questions.slice(),
      questionId = questions.findIndex( s => s.id === id ),
      question = questions.find( s => s.id === id ),
@@ -357,7 +366,7 @@ class App extends React.Component {
         errMsg={this.state.errMsg}
 
        />
-      <ResultsTable tableRows={this.state.questions} deleteRow={this.deleteQuestion} loadQuestion={this.loadQuestion} />
+      <ResultsTable tableRows={this.state.questions} deleteRow={this.deleteQuestion} editQuestion={this.editQuestion} />
     </div> );
   };
 

@@ -63,7 +63,7 @@ class Form extends Component {
       </div>
 
         <Tab panes={panes} style={{ marginTop:'24px', marginBottom:'24px' }} />
-        <Button.Group style={{ marginBottom:'12px' }}> 
+        <Button.Group style={{ marginBottom:'12px' }}>
           <Button onClick={this.props.cancelAddQuestion}>Cancel</Button>
           <Button.Or />
           <Button onClick={this.props.saveQuestion} positive>Save</Button>

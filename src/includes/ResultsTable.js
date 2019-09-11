@@ -25,7 +25,7 @@ class ResultsTable extends Component{
   }
 
   render() {
-    const { deleteRow, tableRows, loadQuestion } = this.props;
+    const { deleteRow, tableRows, editQuestion } = this.props;
 
     const tableBody = tableRows.sort( ( a, b ) => {
       var n = b.isUpdating - a.isUpdating;
@@ -77,7 +77,7 @@ class ResultsTable extends Component{
         <Table.Cell>{type}</Table.Cell>
         <Table.Cell>{onBranch}</Table.Cell>
         <Table.Cell>{orderOnBranch}</Table.Cell>
-        <Table.Cell><Button onClick={()=>deleteRow( id )}>Delete</Button><Button onClick={()=>loadQuestion( id )}>Edit</Button></Table.Cell>
+        <Table.Cell><Button onClick={()=>deleteRow( id )}>Delete</Button><Button onClick={()=>editQuestion( id )}>Edit</Button></Table.Cell>
       </Table.Row>
     );
   });
@@ -88,27 +88,27 @@ class ResultsTable extends Component{
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell>
-              <Button fluid icon={this.state.sortBy === 'id' ? iconObject : {}} content='Id'
+              <Button fluid icon={ 'id' === this.state.sortBy ? iconObject : {}} content='Id'
               onClick={()=> {
               this.sortColumn( 'id' );
             }} /></Table.HeaderCell>
             <Table.HeaderCell>
-              <Button fluid icon={this.state.sortBy === 'name' ? iconObject : {}} content='Name'
+              <Button fluid icon={'name' ===  this.state.sortBy ? iconObject : {}} content='Name'
                 onClick={()=> {
                 this.sortColumn( 'name' );
               }} /></Table.HeaderCell>
             <Table.HeaderCell>
-              <Button fluid icon={this.state.sortBy === 'type' ? iconObject : {}} content='Type'
+              <Button fluid icon={'type' === this.state.sortBy ? iconObject : {}} content='Type'
               onClick={()=> {
               this.sortColumn( 'type' );
             }} /></Table.HeaderCell>
             <Table.HeaderCell>
-              <Button fluid icon={this.state.sortBy === 'onBranch' ? iconObject : {}} content='On Branch'
+              <Button fluid icon={ 'onBranch' === this.state.sortBy ? iconObject : {}} content='On Branch'
               onClick={()=> {
               this.sortColumn( 'onBranch' );
             }} /></Table.HeaderCell>
             <Table.HeaderCell>
-              <Button fluid icon={this.state.sortBy === 'orderOnBranch' ? iconObject : {}} content='Order On Branch'
+              <Button fluid icon={ 'orderOnBranch' === this.state.sortBy ? iconObject : {}} content='Order On Branch'
                 onClick={()=> {
                 this.sortColumn( 'orderOnBranch' );
               }} /></Table.HeaderCell>
