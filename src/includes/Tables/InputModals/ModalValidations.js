@@ -109,11 +109,11 @@ class ModalValidations extends Component {
     let compareWith, questionNamesCompare;
     if ( 'dynamic' === this.state.type ) {
       questionNamesCompare = questionNames.filter( q=> 'normalno' === q.type  ||  'kontrolno' === q.type );
-      compareWith = <Select value={this.state.compareWith} onChange={this.handleChangeCompareWith} items={questionNames} />;
     }else {
       questionNamesCompare = questionNames.filter( q=> 'prevzemeno' ===  q.type );
-      compareWith = <input type='number'  placeholder='Name' value={this.state.compareWith} onChange={this.handleChangeCompareWith}/>;
     }
+      compareWith = <input type='number'  placeholder='Name' value={this.state.compareWith} onChange={this.handleChangeCompareWith}/>;
+    
       return ( <Modal
         trigger={<Button onClick={( event )=> {
           event.preventDefault();

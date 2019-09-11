@@ -100,10 +100,13 @@ class App extends React.Component {
   };
 
   saveQuestionsToPersistance( questions ) {
-     window.localStorage[this.state.formsCollection
-    .find( f=> f.id === parseInt( this.state.formSelected, 10 ) )
-    .storageObject] = JSON.stringify( questions );
-    this.sendOutAjaxSave( this.state.formSelected, questions );
+    if(AJAX_URL.length ===0){
+       window.localStorage[this.state.formsCollection
+      .find( f=> f.id === parseInt( this.state.formSelected, 10 ) )
+      .storageObject] = JSON.stringify( questions );
+    }else{
+      this.sendOutAjaxSave( this.state.formSelected, questions );
+    }
   }
 
   sendOutAjaxSave( formId, questionsObj ) {
@@ -112,7 +115,7 @@ class App extends React.Component {
       questions: JSON.stringify( questionsObj )
     });
     if ( AJAX_URL.length > 0 ) {
-      fetch( AJAX_URL, {
+      fetch( AJAX_URL + '/Save', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -126,8 +129,9 @@ class App extends React.Component {
   }
 
   getQuestionsFromPersistance() {
-    fetch( AJAX_URL )
+    fetch( AJAX_URL + '/GetAll' )
     .then( res => res.json() )
+    .then(data => JSON.parse(data.d))
     .then(
       ( formsCollection ) => {
         this.setState({ formsCollection });
@@ -141,10 +145,15 @@ class App extends React.Component {
   }
 
   getQuestionsForForm( formSelected ) {
-    const selectedFormObj = this.state.formsCollection.find( f=> f.id === parseInt( formSelected, 10 ) );
+    const selectedFormObj = this.state.formsCollection.find( f=> parseInt( f.id, 10 ) === parseInt( formSelected, 10 ) );
     let questions = [];
-
-    questions = localStorage[selectedFormObj.storageObject] ? JSON.parse( localStorage[selectedFormObj.storageObject] ) : [] ;
+    if(AJAX_URL.length ===0){
+      questions = localStorage[selectedFormObj.storageObject] ? JSON.parse( localStorage[selectedFormObj.storageObject] ) : [] ;
+    }else{
+      if(selectedFormObj){
+        questions =  selectedFormObj.payload ? JSON.parse(selectedFormObj.payload) : [];
+      }
+    }
 
     this.setState({ questions });
   }
