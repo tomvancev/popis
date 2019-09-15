@@ -53,7 +53,6 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    this.recalcBranches();
     this.getQuestionsFromPersistance();
   }
 
@@ -105,7 +104,7 @@ class App extends React.Component {
   };
 
   saveQuestionsToPersistance( questions ) {
-    if ( AJAX_URL.length === 0 ) {
+    if ( 0 === AJAX_URL.length ) {
        window.localStorage[this.state.formsCollection
       .find( f=> f.id === parseInt( this.state.formSelected, 10 ) )
       .storageObject] = JSON.stringify( questions );
@@ -152,13 +151,14 @@ class App extends React.Component {
   getQuestionsForForm( formSelected ) {
     const selectedFormObj = this.state.formsCollection.find( f=> parseInt( f.id, 10 ) === parseInt( formSelected, 10 ) );
     let questions = [];
-    if ( AJAX_URL.length === 0 ) {
+    if ( 0 === AJAX_URL.length  ) {
       questions = localStorage[selectedFormObj.storageObject] ? JSON.parse( localStorage[selectedFormObj.storageObject] ) : [] ;
     }else {
       if ( selectedFormObj ) {
         questions =  selectedFormObj.payload ? JSON.parse( selectedFormObj.payload ) : [];
       }
     }
+    this.recalcBranches( questions );
 
     this.setState({ questions });
   }
