@@ -3,6 +3,7 @@ import {Tab, Button, Segment} from 'semantic-ui-react';
 import TableValidations from './Tables/TableValidations';
 import TableConditions from './Tables/TableConditions';
 import TableBranches from './Tables/TableBranches';
+import DataValidation from './Components/DataValidation'
 import {comparisonOperators, typeOfQuestions} from './constants';
 import Select from './Components/Select';
 
@@ -34,7 +35,31 @@ class Form extends Component {
           deleteCondition={this.props.deleteCondition}
           comparisonOperators={comparisonOperators}
           questions={this.props.questions}/>
-    </Tab.Pane> }
+    </Tab.Pane> },
+          { menuItem: 'Data Validations', render: () => (
+        <Tab.Pane>
+          <DataValidation 
+            dataValidations={this.props.dataValidations}
+            savedataValidations={this.props.saveDataValidations}
+            handleChangeRequiredDV={this.props.handleChangeRequiredDV}
+            requiredDV={this.props.requiredDV}
+            handleChangeNumericDV={this.props.handleChangeNumericDV}
+            numericDV={this.props.numericDV}
+            minValueDV={this.props.minValueDV}
+            handleChangeMinValueDV={this.props.handleChangeMinValueDV}
+            maxValueDV={this.props.maxValueDV}
+            handleChangeMaxValueDV={this.props.handleChangeMaxValueDV}
+            minLengthDV={this.props.minLengthDV}
+            handleChangeMinLengthDV={this.props.handleChangeMinLengthDV}
+            maxLengthDV={this.props.maxLengthDV}
+            handleChangeMaxLengthDV={this.props.handleChangeMaxLengthDV}
+            tipGreskaDV={this.props.tipGreskaDV}
+            handleChangeTipGreskaDV={this.props.handleChangeTipGreskaDV}
+
+            />
+        </Tab.Pane> )
+        }
+      
     ];
     const validationErrors = this.props.errMsg ? ( <Segment color='red'>
                 {this.props.errMsg}

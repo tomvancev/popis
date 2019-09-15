@@ -47,6 +47,18 @@ class App extends React.Component {
     this.saveCondition = this.saveCondition.bind( this );
     this.deleteCondition = this.deleteCondition.bind( this );
 
+    // Data Validations
+    this.handleChangeRequiredDV = this.handleChangeRequiredDV.bind(this);
+    this.handleChangeNumericDV = this.handleChangeNumericDV.bind(this);
+    this.handleChangeMinValueDV = this.handleChangeMinValueDV.bind(this);
+    this.handleChangeMaxValueDV = this.handleChangeMaxValueDV.bind(this);
+    this.handleChangeMinLengthDV = this.handleChangeMinLengthDV.bind(this);
+    this.handleChangeMaxLengthDV = this.handleChangeMaxLengthDV.bind(this);
+    this.handleChangeTipGreskaDV = this.handleChangeTipGreskaDV.bind(this);
+
+
+
+
     this.recalcBranches = this.recalcBranches.bind( this );
     this.editQuestion = this.editQuestion.bind( this );
 
@@ -62,6 +74,17 @@ class App extends React.Component {
     QuestionBranches:[],
     validations:[],
     conditions:[],
+
+    dataValidations: [],
+    requiredDV:false,
+    numericDV:false,
+    minValueDV:0,
+    maxValueDV:0,
+    minLengthDV:0,
+    maxLengthDV:0,
+    tipGreskaDV:0,
+
+
     name:'',
     type:'',
     onBranch:'',
@@ -79,12 +102,19 @@ class App extends React.Component {
         onBranch:'',
         orderOnBranch:'',
         QuestionBranches:[],
-
-        // FromDb:false,
         conditions:[],
         validations:[],
-        errMsg:'',
 
+        dataValidations: [],
+        requiredDV:false,
+        numericDV:false,
+        minValueDV:0,
+        maxValueDV:0,
+        minLengthDV:0,
+        maxLengthDV:0,
+        tipGreskaDV:0,
+
+        errMsg:'',
         isUpdating:-1,
         formErrors:[]
        });
@@ -102,7 +132,23 @@ class App extends React.Component {
     this.setState({ formSelected: event.target.value });
     this.getQuestionsForForm( event.target.value );
   };
+  // UTILITIES
+  generateId() {
+    let newId = 1;
+    [].forEach.call( arguments, ( arr=> arr.forEach( x=> newId = newId > x.id ? newId : x.id + 1 ) ) );
+    return newId;
+  }
 
+  recalcBranches( questionsPar ) {
+    const questions = questionsPar || this.state.questions;
+    let branches = [new BranchModel( 0, [], 'root' )];
+    questions.filter( q=>q.branches.length > 0 ).forEach( q => {
+      branches = branches.concat( q.branches );
+    });
+    this.setState( { branches } );
+  }
+
+  // PERSISTANCE
   saveQuestionsToPersistance( questions ) {
     if ( 0 === AJAX_URL.length ) {
        window.localStorage[this.state.formsCollection
@@ -164,6 +210,7 @@ class App extends React.Component {
   }
 
   //Top part of form
+
   handleChangeName( event ) {
     this.setState({ name: event.target.value });
   }
@@ -177,22 +224,8 @@ class App extends React.Component {
     this.setState({ onBranch: event.target.value });
   }
 
-  generateId() {
-    let newId = 1;
-    [].forEach.call( arguments, ( arr=> arr.forEach( x=> newId = newId > x.id ? newId : x.id + 1 ) ) );
-    return newId;
-  }
 
-  recalcBranches( questionsPar ) {
-    const questions = questionsPar || this.state.questions;
-    let branches = [new BranchModel( 0, [], 'root' )];
-    questions.filter( q=>q.branches.length > 0 ).forEach( q => {
-      branches = branches.concat( q.branches );
-    });
-    this.setState( { branches } );
-  }
-
-  // Branches
+  // BRANCHES
 
   saveBranch( modaliteti, name  ) {
     const QuestionBranches = this.state.QuestionBranches.slice();
@@ -206,6 +239,7 @@ class App extends React.Component {
     });
     this.setState({ QuestionBranches });
   }
+  // VALIDATIONS
 
   saveValidation( type, fieldToCompare, compareWith, comparisonOperator, action, applyToModalities ) {
     const validations = this.state.validations.slice();
@@ -221,6 +255,8 @@ class App extends React.Component {
     this.setState({ validations });
   }
 
+  // CONDITIONS
+
   saveCondition( type, fieldToCompare, compareWith, comparisonOperator  ) {
     const conditions = this.state.conditions.slice();
     let newId = this.generateId( conditions, ...this.state.questions.filter( q=> q.conditions.length > 0 ).map( c=> c.conditions ) );
@@ -234,10 +270,38 @@ class App extends React.Component {
     });
     this.setState({ conditions });
   }
+  // DATA VALIDATION
+
+  handleChangeRequiredDV = (e, {checked}) => {
+      this.setState({requiredDV :checked})
+  }
+  handleChangeNumericDV = (e, {checked}) => {
+      this.setState({numericDV :checked})
+  }
+
+  handleChangeMinValueDV(e){
+    console.log()
+    this.setState({minValueDV: parseInt(e.target.value,10) });      
+  }
+  handleChangeMaxValueDV(e){
+    this.setState({maxValueDV: parseInt(e.target.value,10)});      
+  }
+  handleChangeMinLengthDV(e){
+    this.setState({minLengthDV: parseInt(e.target.value,10)});      
+  }
+  handleChangeMaxLengthDV(e){
+    this.setState({maxLengthDV: parseInt(e.target.value,10)});      
+  }
+  handleChangeTipGreskaDV(e){
+    this.setState({tipGreskaDV: parseInt(e.target.value,10)});      
+  }
+
+
+  // Form Question
 
   saveQuestion() {
     const questions = this.state.questions.slice(),
-     { name, type, onBranch, orderOnBranch, conditions, validations } = this.state;
+     { name, type, onBranch, orderOnBranch, conditions, validations, requiredDV, tipGreskaDV, numericDV, minValueDV, maxValueDV, minLengthDV, maxLengthDV } = this.state;
     let { QuestionBranches, isUpdating } = this.state;
     if ( ! name || ! type || ! onBranch || ! orderOnBranch  ) {
       this.setState({ errMsg: 'A question must have a name, type, onBranch and orderOnBranch ' });
@@ -252,7 +316,8 @@ class App extends React.Component {
       }
       let newId = this.generateId( questions );
 
-      const question = new QuestionModel( newId, name, type, onBranch, orderOnBranch, QuestionBranches, conditions, validations );
+      const question = 
+      new QuestionModel( newId, name, type, onBranch, orderOnBranch, QuestionBranches, conditions, validations, requiredDV, tipGreskaDV, numericDV, minValueDV, maxValueDV, minLengthDV, maxLengthDV );
       questions.push( question );
       console.log( question );
     }else {
@@ -269,6 +334,14 @@ class App extends React.Component {
       question.branches = QuestionBranches;
       question.conditions = conditions;
       question.validations = validations;
+      question.requiredDV = validations;
+      question.tipGreskaDV =tipGreskaDV; 
+      question.numericDV =numericDV; 
+      question.minValueDV =minValueDV; 
+      question.maxValueDV =maxValueDV; 
+      question.minLengthDV =minLengthDV; 
+      question.maxLengthDV =maxLengthDV; 
+
       question.isUpdating = 0;
       isUpdating = -1;
 
@@ -299,11 +372,14 @@ class App extends React.Component {
     const questions = this.state.questions.slice(),
      questionId = questions.findIndex( s => s.id === id ),
      question = questions.find( s => s.id === id ),
-    { branches, validations, conditions, name, type, onBranch, orderOnBranch } = question;
+    { branches, validations, conditions, name, type, onBranch, orderOnBranch, requiredDV, tipGreskaDV, numericDV, minValueDV, maxValueDV, minLengthDV, maxLengthDV } = question;
     questions.forEach( q=> q.isUpdating = 0 );
     questions[questionId].isUpdating = 1;
-    this.setState({ isUpdating:question.id, QuestionBranches: branches, validations, conditions, name, type, onBranch, orderOnBranch, questions });
+    this.setState({ isUpdating:question.id,
+     QuestionBranches: branches, validations, conditions, name, type, onBranch, orderOnBranch, questions,  requiredDV, tipGreskaDV, numericDV, minValueDV, maxValueDV, minLengthDV, maxLengthDV });
   }
+
+  // RENDER
 
   render() {
     const SelectedForm = this.state.formsCollection.find( f=> parseInt( f.id,10 )=== parseInt( this.state.formSelected, 10 ) ),
@@ -343,6 +419,7 @@ class App extends React.Component {
         branches={this.state.branches}
         validations={this.state.validations}
         conditions={this.state.conditions}
+        dataValidations={this.state.dataValidations}
 
         questions={this.state.questions}
         saveQuestion={this.saveQuestion}
@@ -356,6 +433,23 @@ class App extends React.Component {
 
         saveCondition={this.saveCondition}
         deleteCondition={this.deleteCondition}
+
+        saveDataValidations={this.saveDataValidations}
+        numericDV={this.state.numericDV}
+        handleChangeNumericDV={this.handleChangeNumericDV}
+        requiredDV={this.state.requiredDV}
+        handleChangeRequiredDV={this.handleChangeRequiredDV}
+        minValueDV={this.state.minValueDV}
+        handleChangeMinValueDV={this.handleChangeMinValueDV}
+        maxValueDV={this.state.maxValueDV}
+        handleChangeMaxValueDV={this.handleChangeMaxValueDV}
+        minLengthDV={this.state.minLengthDV}
+        handleChangeMinLengthDV={this.handleChangeMinLengthDV}
+        maxLengthDV={this.state.maxLengthDV}
+        handleChangeMaxLengthDV={this.handleChangeMaxLengthDV}
+        tipGreskaDV={this.tipGreskaDV}
+        handleChangeTipGreskaDV={this.handleChangeTipGreskaDV}
+
 
         cancelAddQuestion={this.cancelAddQuestion}
         handleChangeName={this.handleChangeName}
