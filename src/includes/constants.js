@@ -10,7 +10,8 @@ export const comparisonOperators = [{ value:'>', text:'>' },
 export const typeOfQuestions = [{ value:'normalno', text:'Normalno' },
                        { value:'kontrolno', text:'Kontrolno' },
                        { value:'terminate', text:'Terminate' },
-                       { value:'prevzemeno', text:'Prevzemeno' }];
+                       { value:'prevzemeno', text:'Prevzemeno' },
+                       { value:'vidlivo-prevzemeno', text:'Vidlivo Prevzemeno' }];
 
 export const typeOfConditions = [{ value:'static', text:'Static' },
                                                { value:'dynamic', text:'Dynamic' }];
