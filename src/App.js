@@ -306,7 +306,7 @@ class App extends React.Component {
   }
 
   render() {
-    const SelectedForm = this.state.formsCollection.find( f=> f.id === parseInt( this.state.formSelected, 10 ) ),
+    const SelectedForm = this.state.formsCollection.find( f=> parseInt( f.id,10 )=== parseInt( this.state.formSelected, 10 ) ),
     SelectedFormName = SelectedForm ? SelectedForm.name : '',
     SelectedFormDataSource = this.state.formsCollection.map( f=> {
                               return { value: f.id, text:f.name };
