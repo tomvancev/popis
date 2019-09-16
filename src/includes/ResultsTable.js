@@ -28,9 +28,10 @@ class ResultsTable extends Component{
     const { deleteRow, tableRows, editQuestion } = this.props;
 
     const tableBody = tableRows.sort( ( a, b ) => {
-      var n = b.isUpdating - a.isUpdating;
-        if ( 0 !== n ) {
-          return n;
+        if ( b.isUpdating ) {
+          return 1;
+        }else if ( a.isUpdating ) {
+          return -1;
         }
         if (  false === this.state.reverseSort ) {
           if ( Number.isNaN( parseInt( a[this.state.sortBy], 10 ) )  ) {
@@ -66,7 +67,7 @@ class ResultsTable extends Component{
       return result.length > 0 ? result.reduce( reducer ) : true;
     }).map( ( rule ) => {
       const { id, name, type, onBranch, orderOnBranch, isUpdating } = rule,
-      style = 1 === isUpdating ? { backgroundColor:'#21ba45' } : {};
+      style = isUpdating ? { backgroundColor:'#21ba45' } : {};
 
       return (
       <Table.Row key={id} style={style} >

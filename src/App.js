@@ -85,7 +85,7 @@ class App extends React.Component {
     type:'',
     onBranch:'',
     orderOnBranch:'',
-    isUpdating:-1,
+    formIsUpdating:-1,
     formSelected: 3,
     formsCollection: [],
     formErrors:[]
@@ -111,7 +111,7 @@ class App extends React.Component {
         tipGreskaDV:'',
 
         errMsg:'',
-        isUpdating:-1,
+        formIsUpdating:-1,
         formErrors:[]
        });
 
@@ -154,6 +154,7 @@ class App extends React.Component {
     }else {
       this.sendOutAjaxSave( this.state.formSelected, questions );
     }
+    this.getQuestionsFromPersistance();
   }
 
   sendOutAjaxSave( formId, questionsObj ) {
@@ -298,7 +299,7 @@ class App extends React.Component {
     const questions = this.state.questions.slice(),
      { name, type, onBranch, orderOnBranch, conditions, validations, requiredDV, tipGreskaDV, numericDV, minValueDV, maxValueDV, minLengthDV, maxLengthDV } = this.state;
 
-    let { QuestionBranches, isUpdating } = this.state;
+    let { QuestionBranches, formIsUpdating } = this.state;
     if ( ! name || ! type || ! onBranch || ! orderOnBranch  ) {
       this.setState({ errMsg: 'A question must have a name, type, onBranch and orderOnBranch ' });
       return;
@@ -308,7 +309,7 @@ class App extends React.Component {
       return;
     }
 
-    if ( -1 === isUpdating ) {
+    if ( -1 === formIsUpdating ) {
 
       if ( questions.findIndex( q=> q.name === name ) !== -1 ) {
         this.setState({ errMsg: 'This question already exists' });
@@ -316,14 +317,28 @@ class App extends React.Component {
       }
       let newId = this.generateId( questions );
 
-      const question =
-      new QuestionModel( newId, name, type, onBranch, orderOnBranch, QuestionBranches, conditions, validations, requiredDV, tipGreskaDV, numericDV, minValueDV, maxValueDV, minLengthDV, maxLengthDV );
+      const question = new QuestionModel(
+          newId,
+          name,
+          type,
+          onBranch,
+          orderOnBranch,
+          QuestionBranches,
+          conditions,
+          validations,
+          requiredDV,
+          tipGreskaDV,
+          numericDV,
+          minValueDV,
+          maxValueDV,
+          minLengthDV,
+          maxLengthDV );
       questions.push( question );
       console.log( question );
     }else {
-      const questionId = questions.findIndex( q=> q.id === isUpdating );
+      const questionId = questions.findIndex( q=> q.id === formIsUpdating );
       if ( questionId === -1 ) {
-        console.log( 'ERROR UPDATE QUESTION NOT FOUND ID: ' + isUpdating );
+        console.log( 'ERROR UPDATE QUESTION NOT FOUND ID: ' + formIsUpdating );
         return;
       }
       const question = questions[questionId];
@@ -342,14 +357,13 @@ class App extends React.Component {
       question.maxValueDV = maxValueDV;
       question.minLengthDV = minLengthDV;
       question.maxLengthDV = maxLengthDV;
-      console.log( question );
 
-      question.isUpdating = 0;
-      isUpdating = -1;
+      question.isUpdating = false;
+      formIsUpdating = -1;
 
     }
 
-      this.setState({ questions, isUpdating });
+      this.setState({ questions, formIsUpdating });
       this.saveQuestionsToPersistance( questions );
 
       this.recalcBranches( questions );
@@ -363,9 +377,10 @@ class App extends React.Component {
       this.setState({ questions });
       this.saveQuestionsToPersistance( questions );
       this.recalcBranches( questions );
-      if (  0 < this.state.isUpdating ) {
+      if (  0 < this.state.formIsUpdating ) {
         this.clearForm();
       }
+      this.getQuestionsFromPersistance();
     }
 
   };
@@ -375,9 +390,9 @@ class App extends React.Component {
      questionId = questions.findIndex( s => s.id === id ),
      question = questions.find( s => s.id === id ),
     { branches, validations, conditions, name, type, onBranch, orderOnBranch, requiredDV, tipGreskaDV, numericDV, minValueDV, maxValueDV, minLengthDV, maxLengthDV } = question;
-    questions.forEach( q=> q.isUpdating = 0 );
-    questions[questionId].isUpdating = 1;
-    this.setState({ isUpdating:question.id,
+    questions.forEach( q=> q.isUpdating = false );
+    questions[questionId].isUpdating = true;
+    this.setState({ formIsUpdating:question.id,
      QuestionBranches: branches, validations, conditions, name, type, onBranch, orderOnBranch, questions,  requiredDV, tipGreskaDV, numericDV, minValueDV, maxValueDV, minLengthDV, maxLengthDV });
   }
 

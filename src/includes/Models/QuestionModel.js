@@ -1,4 +1,4 @@
-const QuestionModel = 
+const QuestionModel =
 function QuestionModel( id, name, type, onBranch, orderOnBranch, branches, conditions, validations, requiredDV, tipGreskaDV, numericDV, minValueDV, maxValueDV, minLengthDV, maxLengthDV ) {
     return {
       id,
@@ -10,7 +10,7 @@ function QuestionModel( id, name, type, onBranch, orderOnBranch, branches, condi
 
       conditions,
       validations,
-      
+
       requiredDV,
       tipGreskaDV,
       numericDV,
@@ -19,7 +19,7 @@ function QuestionModel( id, name, type, onBranch, orderOnBranch, branches, condi
       minLengthDV,
       maxLengthDV,
 
-      isUpdating:-1
+      isUpdating:false
     };
   };
 
