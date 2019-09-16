@@ -48,16 +48,13 @@ class App extends React.Component {
     this.deleteCondition = this.deleteCondition.bind( this );
 
     // Data Validations
-    this.handleChangeRequiredDV = this.handleChangeRequiredDV.bind(this);
-    this.handleChangeNumericDV = this.handleChangeNumericDV.bind(this);
-    this.handleChangeMinValueDV = this.handleChangeMinValueDV.bind(this);
-    this.handleChangeMaxValueDV = this.handleChangeMaxValueDV.bind(this);
-    this.handleChangeMinLengthDV = this.handleChangeMinLengthDV.bind(this);
-    this.handleChangeMaxLengthDV = this.handleChangeMaxLengthDV.bind(this);
-    this.handleChangeTipGreskaDV = this.handleChangeTipGreskaDV.bind(this);
-
-
-
+    this.handleChangeRequiredDV = this.handleChangeRequiredDV.bind( this );
+    this.handleChangeNumericDV = this.handleChangeNumericDV.bind( this );
+    this.handleChangeMinValueDV = this.handleChangeMinValueDV.bind( this );
+    this.handleChangeMaxValueDV = this.handleChangeMaxValueDV.bind( this );
+    this.handleChangeMinLengthDV = this.handleChangeMinLengthDV.bind( this );
+    this.handleChangeMaxLengthDV = this.handleChangeMaxLengthDV.bind( this );
+    this.handleChangeTipGreskaDV = this.handleChangeTipGreskaDV.bind( this );
 
     this.recalcBranches = this.recalcBranches.bind( this );
     this.editQuestion = this.editQuestion.bind( this );
@@ -82,8 +79,7 @@ class App extends React.Component {
     maxValueDV:0,
     minLengthDV:0,
     maxLengthDV:0,
-    tipGreskaDV:0,
-
+    tipGreskaDV:'',
 
     name:'',
     type:'',
@@ -112,7 +108,7 @@ class App extends React.Component {
         maxValueDV:0,
         minLengthDV:0,
         maxLengthDV:0,
-        tipGreskaDV:0,
+        tipGreskaDV:'',
 
         errMsg:'',
         isUpdating:-1,
@@ -132,6 +128,7 @@ class App extends React.Component {
     this.setState({ formSelected: event.target.value });
     this.getQuestionsForForm( event.target.value );
   };
+
   // UTILITIES
   generateId() {
     let newId = 1;
@@ -224,7 +221,6 @@ class App extends React.Component {
     this.setState({ onBranch: event.target.value });
   }
 
-
   // BRANCHES
 
   saveBranch( modaliteti, name  ) {
@@ -239,8 +235,8 @@ class App extends React.Component {
     });
     this.setState({ QuestionBranches });
   }
-  // VALIDATIONS
 
+  // VALIDATIONS
   saveValidation( type, fieldToCompare, compareWith, comparisonOperator, action, applyToModalities ) {
     const validations = this.state.validations.slice();
     let newId = this.generateId( this.state.validations, ...this.state.questions.filter( q=> q.validations.length > 0 ).map( c=> c.validations ) );
@@ -270,41 +266,45 @@ class App extends React.Component {
     });
     this.setState({ conditions });
   }
+
   // DATA VALIDATION
+  handleChangeRequiredDV = ( e, { checked }) => {
+      this.setState({ requiredDV:checked });
+  };
+  handleChangeNumericDV = ( e, { checked }) => {
+      this.setState({ numericDV:checked });
+  };
 
-  handleChangeRequiredDV = (e, {checked}) => {
-      this.setState({requiredDV :checked})
+  handleChangeMinValueDV( e ) {
+    console.log();
+    this.setState({ minValueDV: parseInt( e.target.value, 10 ) });
   }
-  handleChangeNumericDV = (e, {checked}) => {
-      this.setState({numericDV :checked})
+  handleChangeMaxValueDV( e ) {
+    this.setState({ maxValueDV: parseInt( e.target.value, 10 ) });
   }
-
-  handleChangeMinValueDV(e){
-    console.log()
-    this.setState({minValueDV: parseInt(e.target.value,10) });      
+  handleChangeMinLengthDV( e ) {
+    this.setState({ minLengthDV: parseInt( e.target.value, 10 ) });
   }
-  handleChangeMaxValueDV(e){
-    this.setState({maxValueDV: parseInt(e.target.value,10)});      
+  handleChangeMaxLengthDV( e ) {
+    this.setState({ maxLengthDV: parseInt( e.target.value, 10 ) });
   }
-  handleChangeMinLengthDV(e){
-    this.setState({minLengthDV: parseInt(e.target.value,10)});      
+  handleChangeTipGreskaDV( e ) {
+    this.setState({ tipGreskaDV: e.target.value });
   }
-  handleChangeMaxLengthDV(e){
-    this.setState({maxLengthDV: parseInt(e.target.value,10)});      
-  }
-  handleChangeTipGreskaDV(e){
-    this.setState({tipGreskaDV: parseInt(e.target.value,10)});      
-  }
-
 
   // Form Question
 
   saveQuestion() {
     const questions = this.state.questions.slice(),
      { name, type, onBranch, orderOnBranch, conditions, validations, requiredDV, tipGreskaDV, numericDV, minValueDV, maxValueDV, minLengthDV, maxLengthDV } = this.state;
+
     let { QuestionBranches, isUpdating } = this.state;
     if ( ! name || ! type || ! onBranch || ! orderOnBranch  ) {
       this.setState({ errMsg: 'A question must have a name, type, onBranch and orderOnBranch ' });
+      return;
+    }
+    if ( !! requiredDV && ! tipGreskaDV ) {
+      this.setState({ errMsg: 'If Required is true, Tip Greska cannot be empty' });
       return;
     }
 
@@ -316,7 +316,7 @@ class App extends React.Component {
       }
       let newId = this.generateId( questions );
 
-      const question = 
+      const question =
       new QuestionModel( newId, name, type, onBranch, orderOnBranch, QuestionBranches, conditions, validations, requiredDV, tipGreskaDV, numericDV, minValueDV, maxValueDV, minLengthDV, maxLengthDV );
       questions.push( question );
       console.log( question );
@@ -326,7 +326,7 @@ class App extends React.Component {
         console.log( 'ERROR UPDATE QUESTION NOT FOUND ID: ' + isUpdating );
         return;
       }
-      let question = questions[questionId];
+      const question = questions[questionId];
       question.name = name;
       question.type = type;
       question.onBranch = onBranch;
@@ -334,13 +334,15 @@ class App extends React.Component {
       question.branches = QuestionBranches;
       question.conditions = conditions;
       question.validations = validations;
-      question.requiredDV = validations;
-      question.tipGreskaDV =tipGreskaDV; 
-      question.numericDV =numericDV; 
-      question.minValueDV =minValueDV; 
-      question.maxValueDV =maxValueDV; 
-      question.minLengthDV =minLengthDV; 
-      question.maxLengthDV =maxLengthDV; 
+      question.requiredDV = requiredDV;
+
+      question.tipGreskaDV = tipGreskaDV;
+      question.numericDV = numericDV;
+      question.minValueDV = minValueDV;
+      question.maxValueDV = maxValueDV;
+      question.minLengthDV = minLengthDV;
+      question.maxLengthDV = maxLengthDV;
+      console.log( question );
 
       question.isUpdating = 0;
       isUpdating = -1;
@@ -382,7 +384,7 @@ class App extends React.Component {
   // RENDER
 
   render() {
-    const SelectedForm = this.state.formsCollection.find( f=> parseInt( f.id,10 )=== parseInt( this.state.formSelected, 10 ) ),
+    const SelectedForm = this.state.formsCollection.find( f=> parseInt( f.id, 10 ) === parseInt( this.state.formSelected, 10 ) ),
     SelectedFormName = SelectedForm ? SelectedForm.name : '',
     SelectedFormDataSource = this.state.formsCollection.map( f=> {
                               return { value: f.id, text:f.name };
@@ -447,9 +449,8 @@ class App extends React.Component {
         handleChangeMinLengthDV={this.handleChangeMinLengthDV}
         maxLengthDV={this.state.maxLengthDV}
         handleChangeMaxLengthDV={this.handleChangeMaxLengthDV}
-        tipGreskaDV={this.tipGreskaDV}
+        tipGreskaDV={this.state.tipGreskaDV}
         handleChangeTipGreskaDV={this.handleChangeTipGreskaDV}
-
 
         cancelAddQuestion={this.cancelAddQuestion}
         handleChangeName={this.handleChangeName}

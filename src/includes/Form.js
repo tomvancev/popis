@@ -3,7 +3,7 @@ import {Tab, Button, Segment} from 'semantic-ui-react';
 import TableValidations from './Tables/TableValidations';
 import TableConditions from './Tables/TableConditions';
 import TableBranches from './Tables/TableBranches';
-import DataValidation from './Components/DataValidation'
+import DataValidation from './Components/DataValidation';
 import {comparisonOperators, typeOfQuestions} from './constants';
 import Select from './Components/Select';
 
@@ -38,7 +38,7 @@ class Form extends Component {
     </Tab.Pane> },
           { menuItem: 'Data Validations', render: () => (
         <Tab.Pane>
-          <DataValidation 
+          <DataValidation
             dataValidations={this.props.dataValidations}
             savedataValidations={this.props.saveDataValidations}
             handleChangeRequiredDV={this.props.handleChangeRequiredDV}
@@ -59,7 +59,7 @@ class Form extends Component {
             />
         </Tab.Pane> )
         }
-      
+
     ];
     const validationErrors = this.props.errMsg ? ( <Segment color='red'>
                 {this.props.errMsg}

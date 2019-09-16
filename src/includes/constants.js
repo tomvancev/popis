@@ -14,7 +14,9 @@ export const typeOfQuestions = [{ value:'normalno', text:'Normalno' },
                        { value:'vidlivo-prevzemeno', text:'Vidlivo Prevzemeno' }];
 
 export const typeOfConditions = [{ value:'static', text:'Static' },
-                                               { value:'dynamic', text:'Dynamic' }];
+                                 { value:'dynamic', text:'Dynamic' }];
+export const TipNaGreska = [{ value: 'slaba', text: 'Slaba' },
+                       		  { value: 'celosna', text: 'Celosna' }];
 
 export const AJAX_URL = 'Service.svc';
 
